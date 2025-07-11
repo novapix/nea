@@ -49,6 +49,16 @@ class EmployeeType(models.Model):
 
     class Meta:
         db_table = 'employee_types'
+
+class DemandType(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+    status = models.BooleanField(default=True)
+    rate_per_unit = models.FloatField(null=False, blank=False)
+    minimum_charge = models.FloatField(null=False, blank=False)
+    def __str__(self):
+        return self.name
+    class Meta:
+        db_table = 'demand_types'
 #
 # class Branch(models.Model):
 #     branch_code = models.CharField(max_length=20, null=False, blank=False)
