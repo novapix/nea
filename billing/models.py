@@ -137,3 +137,17 @@ class UserProfile(models.Model):
 
     class Meta:
         db_table = 'user_profile'
+
+
+class NepaliMonth(models.Model):
+    month_number = models.PositiveSmallIntegerField(unique=True, help_text="Month number 1-12")
+    name_en = models.CharField(max_length=50, unique=True, help_text="English month name")
+    name_np = models.CharField(max_length=50, unique=True, help_text="Nepali month name (in Nepali script)")
+    abbreviation = models.CharField(max_length=10, blank=True, null=True, help_text="Optional short form")
+
+    def __str__(self):
+        return f"{self.month_number} - {self.name_en} ({self.name_np})"
+
+    class Meta:
+        db_table = 'nepali_months'
+        ordering = ['month_number']
