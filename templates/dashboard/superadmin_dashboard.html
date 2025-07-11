@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="p-6 space-y-6">
+  <h1 class="text-3xl font-bold">Super Admin Dashboard</h1>
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div class="card bg-base-200 shadow-xl">
+      <div class="card-body">
+        <h2 class="card-title">Employees</h2>
+        <p class="text-4xl font-bold">{{ employee_count }}</p>
+      </div>
+    </div>
+
+    <div class="card bg-base-200 shadow-xl">
+      <div class="card-body">
+        <h2 class="card-title">Customers</h2>
+        <p class="text-4xl font-bold">{{ customer_count }}</p>
+      </div>
+    </div>
+
+    <div class="card bg-base-200 shadow-xl">
+      <div class="card-body">
+        <h2 class="card-title">Branches</h2>
+        <p class="text-4xl font-bold">{{ branches|length }}</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-8">
+    <h2 class="text-xl font-semibold mb-4">Latest Branches</h2>
+    <div class="overflow-x-auto">
+      <table class="table table-zebra w-full">
+        <thead>
+          <tr>
+            <th>Code</th>
+            <th>Name</th>
+            <th>Contact</th>
+            <th>Address</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for branch in branches %}
+          <tr>
+            <td>{{ branch.branch_code }}</td>
+            <td>{{ branch.name }}</td>
+            <td>{{ branch.contact }}</td>
+            <td>{{ branch.address }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}
