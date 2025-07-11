@@ -85,7 +85,7 @@ class Employee(models.Model):
     branch = models.ForeignKey(Branch, on_delete=models.PROTECT)
     employee_type = models.ForeignKey(EmployeeType, on_delete=models.PROTECT)
     status = models.BooleanField(default=False,help_text="Approved status")  # False until approved
-    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)  # Linked after approval
+    # user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)  # Linked after approval
     date_joined = models.DateField(null=True, blank=True)
 
     def __str__(self):
@@ -110,9 +110,30 @@ class Customer(models.Model):
     demand_type = models.ForeignKey(DemandType, on_delete=models.PROTECT,null=False, blank=False)
     created_by = models.ForeignKey(Employee, on_delete=models.SET_NULL, null=True, blank=True)
     status = models.BooleanField(default=False,help_text="Approved status")
+    # user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):
         return self.name
 
     class Meta:
         db_table = 'customer'
+
+
+class UserProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    role = models.ForeignKey(Role, on_delete=models.PROTECT)
+    employee = models.OneToOneField(Employee, on_delete=models.SET_NULL, null=True, blank=True)
+    customer = models.OneToOneField(Customer, on_delete=models.SET_NULL, null=True, blank=True)
+    profile_picture = models.TextField(null=True, blank=True)
+    last_seen = models.DateTimeField(null=True, blank=True)
+
+    def __str__(self):
+        return self.user.username
+
+    def clean(self):
+        from django.core.exceptions import ValidationError
+        if self.employee and self.customer:
+            raise ValidationError("UserProfile can be linked to either an Employee or a Customer, not both.")
+
+    class Meta:
+        db_table = 'user_profile'
