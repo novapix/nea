@@ -48,8 +48,7 @@ def login_view(request):
     else:
         form = AuthenticationForm()
 
-    return render(request, 'auth/login.html', {'form': form})
-
+    return render(request, 'auth/login.html', {'form': form, 'hide_navbar': True})
 def logout_view(request):
     logout(request)
     messages.info(request, 'You have been successfully logged out.')
