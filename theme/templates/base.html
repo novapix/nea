@@ -8,6 +8,7 @@
     {% tailwind_css %}
 </head>
 <body class="bg-gray-100 text-black font-sans">
+	{% load static %}
 
     <!-- Optional global toast/alerts -->
     <div class="toast toast-top toast-end">
@@ -19,11 +20,13 @@
             {% endfor %}
         {% endif %}
     </div>
+	{% if not hide_navbar %}
+	   <header class="bg-base-200 shadow p-4">
+	        <h1 class="text-2xl font-bold text-center">NEA Dashboard</h1>
+	    </header>
+	{% endif %}
 
-    <!-- Navbar or Header -->
-    <header class="bg-base-200 shadow p-4">
-        <h1 class="text-2xl font-bold text-center">NEA Dashboard</h1>
-    </header>
+
 
     <!-- Main content -->
     <main class="p-6">
@@ -31,9 +34,12 @@
     </main>
 
     <!-- Optional footer -->
-    <footer class="mt-10 text-center text-sm text-gray-500">
-        &copy; {{ now|date:"Y" }} NEA
-    </footer>
+	{% load tz %}
+	{% now "Y" as current_year %}
+
+	<footer class="mt-10 text-center text-sm text-gray-500">
+	    &copy; {{ current_year }} NEA
+	</footer>
 
 </body>
 </html>
