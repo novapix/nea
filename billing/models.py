@@ -1,5 +1,56 @@
-from django.contrib.auth.models import User
+from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
+from django.core.exceptions import ValidationError
+
+class UserManager(BaseUserManager):
+    def create_user(self, username, email, password=None, **extra_fields):
+        if not email:
+            raise ValueError('Users must have an email address')
+        user = self.model(
+            username=username,
+            email=self.normalize_email(email),
+            **extra_fields
+        )
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+    def create_superuser(self, username, email, password=None, **extra_fields):
+        extra_fields.setdefault('status', True)
+        return self.create_user(username, email, password, **extra_fields)
+
+class User(AbstractUser):
+    objects = UserManager()
+    
+    # Remove default fields
+    first_name = None
+    last_name = None
+    is_staff = None
+    is_superuser = None
+    
+    # Custom fields
+    email = models.EmailField(unique=True)
+    profile_picture = models.TextField(null=True, blank=True)
+    last_seen = models.DateTimeField(null=True, blank=True)
+    status = models.BooleanField(default=False, help_text="Approved status")
+    
+    # Relationships
+    role = models.ForeignKey('Role', on_delete=models.SET_NULL, null=True, blank=True)
+
+    USERNAME_FIELD = 'username'
+    REQUIRED_FIELDS = ['email']
+
+    def get_username(self):
+        return self.username
+
+    def __str__(self):
+        return self.username
+
+    class Meta:
+        db_table = 'auth_user'
+        verbose_name = 'user'
+        verbose_name_plural = 'users'
+        swappable = 'AUTH_USER_MODEL'
 
 
 # Base Table with no Foreign Keys
@@ -85,8 +136,8 @@ class Employee(models.Model):
     branch = models.ForeignKey(Branch, on_delete=models.PROTECT)
     employee_type = models.ForeignKey(EmployeeType, on_delete=models.PROTECT)
     status = models.BooleanField(default=False,help_text="Approved status")  # False until approved
-    # user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)  # Linked after approval
     date_joined = models.DateField(null=True, blank=True)
+    user = models.OneToOneField(User, on_delete=models.SET_NULL, null=True, blank=True)
 
     def __str__(self):
         return f"{self.name} ({self.employee_code})"
@@ -97,46 +148,26 @@ class Employee(models.Model):
 
 
 class Customer(models.Model):
-    sc_no = models.CharField(max_length=20, null=True, blank=True, unique=True)
     name = models.CharField(max_length=100, null=False, blank=False)
+    sc_number = models.CharField(max_length=50, unique=True,null=True,blank=True)
     address = models.TextField(null=False, blank=False)
-    dob = models.DateField(null=False, blank=False)
-    contact_no = models.CharField(max_length=20, null=False, blank=False, unique=True)
-    email = models.EmailField(null=False, blank=False, unique=True)
-    citizenship_no = models.CharField(max_length=50, unique=True, null=False, blank=False)
-    location_citizenship = models.CharField(max_length=100, null=False, blank=False)
-    property_file_location = models.CharField(max_length=255, null=False, blank=False)
-    branch = models.ForeignKey(Branch, on_delete=models.PROTECT,null=False, blank=False)
-    demand_type = models.ForeignKey(DemandType, on_delete=models.PROTECT,null=False, blank=False)
+    contact = models.CharField(max_length=50, null=True, blank=True,unique=True)
+    email = models.EmailField(null=True, blank=True,unique=True)
+    dob = models.DateField(null=True, blank=True)
+    demand_type = models.ForeignKey(DemandType, on_delete=models.PROTECT, null=False, blank=False)
     created_by = models.ForeignKey(Employee, on_delete=models.SET_NULL, null=True, blank=True)
-    status = models.BooleanField(default=False,help_text="Approved status")
-    # user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True)
+    branch = models.ForeignKey(Branch, on_delete=models.PROTECT, null=False, blank=False)
+    status = models.BooleanField(default=False, help_text="Approved status")
+    citizenship_no = models.CharField(max_length=50, unique=True)
+    citizenship_file_location = models.CharField(max_length=255, null=True, blank=True)
+    property_file_location = models.CharField(max_length=255, null=True, blank=True)
+    user = models.OneToOneField(User, on_delete=models.SET_NULL, null=True, blank=True)
 
     def __str__(self):
         return self.name
 
     class Meta:
         db_table = 'customer'
-
-
-class UserProfile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    role = models.ForeignKey(Role, on_delete=models.PROTECT)
-    employee = models.OneToOneField(Employee, on_delete=models.SET_NULL, null=True, blank=True)
-    customer = models.OneToOneField(Customer, on_delete=models.SET_NULL, null=True, blank=True)
-    profile_picture = models.TextField(null=True, blank=True)
-    last_seen = models.DateTimeField(null=True, blank=True)
-
-    def __str__(self):
-        return self.user.username
-
-    def clean(self):
-        from django.core.exceptions import ValidationError
-        if self.employee and self.customer:
-            raise ValidationError("UserProfile can be linked to either an Employee or a Customer, not both.")
-
-    class Meta:
-        db_table = 'user_profile'
 
 
 class NepaliMonth(models.Model):
