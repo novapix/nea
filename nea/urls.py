@@ -17,12 +17,12 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path,include
 from django.conf import  settings
-from billing.views import superadmin_dashboard, login_view, logout_view
+from billing.views import superadmin_dashboard, LoginView, logout_view
 from django.contrib.auth import views as auth_views
 
 urlpatterns = [
-    path('', login_view, name='login'),
-    path('login/', login_view, name='login'),
+    path('', LoginView.as_view(), name='login'),  
+    path('login/', LoginView.as_view(), name='login'),  
     path('logout/', logout_view, name='logout'),
     path('forgot-password/', auth_views.PasswordResetView.as_view(
         template_name='auth/password_reset.html'
@@ -41,6 +41,7 @@ urlpatterns = [
     ), name='password_reset_complete'),
     # path('admin/', admin.site.urls),
     path('admin/', superadmin_dashboard, name='superadmin_dashboard'),
+    path('', include('billing.urls')),
 ]
 
 if settings.DEBUG:
