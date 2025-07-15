@@ -40,7 +40,7 @@ A comprehensive Django-based billing management system designed for Nepal Electr
 
 1. **Clone the repository**
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/novapix/nea.git
    cd nea
    ```
 
@@ -93,25 +93,21 @@ A comprehensive Django-based billing management system designed for Nepal Electr
    # Terminal 2: Tailwind CSS (in another terminal)
    python manage.py tailwind start
    ```
+   or
+   ```bash
+   uv run honcho start
+   ```
 
 9. **Access the application**
-   - Open your browser and navigate to `http://127.0.0.1:8000`
+   - Open your browser and navigate to `http://127.0.0.1:8100`
    - Login with your superuser credentials
 
 ## 🗄 Database Configuration
 
-The system supports both SQLite (for development) and MySQL (for production). Configuration is managed through environment variables in the `.env` file.
+The system supports MySQL (for production and development). Configuration is managed through environment variables in the `.env` file.
 
-### SQLite (Default - Development)
 
-No additional configuration required. SQLite is used by default and the database file (`db.sqlite3`) will be created automatically.
-
-```env
-SECRET_KEY=your-generated-secret-key
-DEBUG=True
-```
-
-### MySQL (Production)
+### MySQL
 
 For production deployment with MySQL, add the following to your `.env` file:
 
