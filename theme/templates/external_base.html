@@ -1,0 +1,43 @@
+{% load static tailwind_tags %}
+<!DOCTYPE html>
+<html lang="en" x-data="{ darkMode: localStorage.getItem('darkMode') === 'true' }" x-init="$watch('darkMode', value => localStorage.setItem('darkMode', value))" :class="{ 'dark': darkMode }">
+<head>
+    <title>{% block title %}NEA{% endblock %}</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.5/dist/cdn.min.js" defer></script>
+    {% tailwind_css %}
+    <style>
+      [x-cloak] { display: none !important; }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200 font-sans min-h-screen flex flex-col transition-colors duration-200">
+    <button 
+        @click="
+            console.log('Current theme:', darkMode ? 'dark' : 'light');
+            darkMode = !darkMode;
+            console.log('New theme:', darkMode ? 'dark' : 'light');
+            console.log('LocalStorage value:', localStorage.getItem('darkMode'));
+        " 
+        class="fixed top-4 right-4 p-2 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200"
+        x-tooltip="Current theme: ${darkMode ? 'dark' : 'light'}"
+    >
+        <span x-show="!darkMode">🌙</span>
+        <span x-show="darkMode" x-cloak>☀️</span>
+        <!-- <span class="absolute -bottom-6 left-1/2 transform -translate-x-1/2 text-xs opacity-0 group-hover:opacity-100 transition-opacity"
+              x-text="darkMode ? 'Dark' : 'Light'"></span> -->
+    </button>
+    
+    <!-- Main content -->
+    <main class="p-6 flex-grow pb-20">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    {% load tz %}
+    {% now "Y" as current_year %}
+    <footer class="fixed bottom-0 left-0 right-0 py-4 text-center text-sm text-gray-500 dark:text-gray-400 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 z-10">
+        &copy; {{ current_year }} NEA
+    </footer>
+</body>
+</html>
