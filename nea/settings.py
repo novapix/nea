@@ -43,13 +43,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
+    'rest_framework_simplejwt',
     'billing.apps.BillingConfig',
-    'tailwind',
-    'theme',  
 ]
-if DEBUG:
-    # Add django_browser_reload only in DEBUG mode
-    INSTALLED_APPS += ['django_browser_reload']
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -60,18 +57,17 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
-if DEBUG:
-    # Add django_browser_reload middleware only in DEBUG mode
-    MIDDLEWARE += [
-        "django_browser_reload.middleware.BrowserReloadMiddleware",
-    ]
+
+# WSGI application
+WSGI_APPLICATION = 'nea.wsgi.application'
+
+# Root URL configuration
 ROOT_URLCONF = 'nea.urls'
 
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates']
-        ,
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -82,8 +78,6 @@ TEMPLATES = [
         },
     },
 ]
-
-WSGI_APPLICATION = 'nea.wsgi.application'
 
 
 # Database
@@ -156,5 +150,25 @@ LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'superadmin_dashboard'
 LOGOUT_REDIRECT_URL = 'login'
 
-# STATIC_URL = '/static/'
-STATICFILES_DIRS = [BASE_DIR / 'static']
+STATICFILES_DIRS = [
+    BASE_DIR / 'static',
+]
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    )
+}
+
+from datetime import timedelta
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=15),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
+    'ROTATE_REFRESH_TOKENS': True,
+    'BLACKLIST_AFTER_ROTATION': True,
+    'UPDATE_LAST_LOGIN': True,
+    'ALGORITHM': 'HS256',
+    'SIGNING_KEY': SECRET_KEY,
+    'AUTH_HEADER_TYPES': ('Bearer',),
+}

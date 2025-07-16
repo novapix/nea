@@ -15,37 +15,40 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path,include
-from django.conf import  settings
+from django.urls import path, include
+from django.conf import settings
 from billing.views import superadmin_dashboard, LoginView, logout_view
 from django.contrib.auth import views as auth_views
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+    TokenVerifyView
+)
 
 urlpatterns = [
-    path('', LoginView.as_view(), name='login'),  
-    path('login/', LoginView.as_view(), name='login'),  
-    path('logout/', logout_view, name='logout'),
-    path('forgot-password/', auth_views.PasswordResetView.as_view(
+    # JWT Authentication Endpoints
+    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('api/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
+    
+    # Your existing URLs
+    path('api/login/', LoginView.as_view(), name='login'),  
+    path('api/logout/', logout_view, name='logout'),
+    path('api/forgot-password/', auth_views.PasswordResetView.as_view(
         template_name='auth/password_reset.html'
     ), name='password_reset'),
  
-    path('forgot-password/done/', auth_views.PasswordResetDoneView.as_view(
+    path('api/forgot-password/done/', auth_views.PasswordResetDoneView.as_view(
         template_name='auth/password_reset_done.html'
     ), name='password_reset_done'),
  
-    path('reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(
+    path('api/reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(
         template_name='auth/password_reset_confirm.html'
     ), name='password_reset_confirm'),
  
-    path('reset/done/', auth_views.PasswordResetCompleteView.as_view(
+    path('api/reset/done/', auth_views.PasswordResetCompleteView.as_view(
         template_name='auth/password_reset_complete.html'
     ), name='password_reset_complete'),
-    # path('admin/', admin.site.urls),
     path('admin/', superadmin_dashboard, name='superadmin_dashboard'),
-    path('', include('billing.urls')),
+    path('api/', include('billing.urls')),
 ]
-
-if settings.DEBUG:
-    # Include django_browser_reload URLs only in DEBUG mode
-    urlpatterns += [
-        path("__reload__/", include("django_browser_reload.urls")),
-    ]
