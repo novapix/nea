@@ -46,6 +46,17 @@ class User(AbstractUser):
     def __str__(self):
         return self.username
 
+    def is_superadmin(self):
+        try:
+            return self.employee.employee_type.name.lower() == 'superadmin'
+        except (AttributeError, Employee.DoesNotExist):
+            return False
+
+    @property
+    def is_staff(self):
+        """For Django admin compatibility"""
+        return self.is_superadmin()
+
     class Meta:
         db_table = 'auth_user'
         verbose_name = 'user'
@@ -108,7 +119,6 @@ class Branch(models.Model):
     address = models.TextField(null=False, blank=False)
     contact = models.CharField(max_length=50, null=False, blank=False)
     status = models.BooleanField(default=True)
-    # this is set to null to prevent circular dependency as branch has branch_admin(emp) and emp has branch so well...
     branch_incharge = models.ForeignKey(
         'Employee',
         on_delete=models.SET_NULL,
