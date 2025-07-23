@@ -1,14 +1,16 @@
 from django.core.management.base import BaseCommand
-from billing.models import Role, EmployeeType
+from billing.models import Role
 
 class Command(BaseCommand):
-    help = 'Seed initial roles and employee types'
+    help = 'Seed initial roles'
 
     def handle(self, *args, **kwargs):
         # Seed roles
         roles = [
-            {'name': 'employee', 'status': True},
+            {'name': 'superadmin', 'status': True},
             {'name': 'customer', 'status': True},
+            {'name': 'branch_admin', 'status': True},
+            {'name': 'meter_reader', 'status': True},
         ]
         
         for role_data in roles:
@@ -17,17 +19,4 @@ class Command(BaseCommand):
                 defaults={'status': role_data['status']}
             )
         
-        # Seed employee types
-        employee_types = [
-            {'name': 'superadmin', 'status': True},
-            {'name': 'branch_admin', 'status': True},
-            {'name': 'meter_reader', 'status': True},
-        ]
-        
-        for type_data in employee_types:
-            EmployeeType.objects.get_or_create(
-                name=type_data['name'],
-                defaults={'status': type_data['status']}
-            )
-        
-        self.stdout.write(self.style.SUCCESS('Successfully seeded roles and employee types'))
+        self.stdout.write(self.style.SUCCESS('Successfully seeded roles'))

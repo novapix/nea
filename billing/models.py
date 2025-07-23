@@ -47,8 +47,8 @@ class User(AbstractUser):
 
     def is_superadmin(self):
         try:
-            return self.employee.employee_type.name.lower() == 'superadmin'
-        except (AttributeError, Employee.DoesNotExist):
+            return self.role.name.lower() == 'superadmin'
+        except (AttributeError, Role.DoesNotExist):
             return False
 
     @property
@@ -87,17 +87,6 @@ class Role(models.Model):
 
     class Meta:
         db_table = 'roles'
-
-
-class EmployeeType(models.Model):
-    name = models.CharField(max_length=100, unique=True)
-    status = models.BooleanField(default=True)
-
-    def __str__(self):
-        return self.name
-
-    class Meta:
-        db_table = 'employee_types'
 
 
 class PaymentMethod(models.Model):
@@ -143,7 +132,6 @@ class Employee(models.Model):
     citizenship_no = models.CharField(max_length=50, unique=True)
     citizenship_file_location = models.CharField(max_length=255, null=True, blank=True)
     branch = models.ForeignKey(Branch, on_delete=models.PROTECT)
-    employee_type = models.ForeignKey(EmployeeType, on_delete=models.PROTECT)
     status = models.BooleanField(default=False,help_text="Approved status")  # False until approved
     date_joined = models.DateField(null=True, blank=True)
     user = models.OneToOneField(User, on_delete=models.SET_NULL, null=True, blank=True)
