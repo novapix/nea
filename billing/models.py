@@ -54,7 +54,7 @@ class User(AbstractUser):
     @property
     def is_staff(self):
         """For Django admin compatibility"""
-        return self.is_superadmin()
+        return self.is_superadmin() or self.role.name.lower() == 'branch_admin' or self.role.name.lower() == 'meter_reader'
 
     class Meta:
         db_table = 'auth_user'
