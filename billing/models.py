@@ -30,7 +30,6 @@ class User(AbstractUser):
     
     # Custom fields
     email = models.EmailField(unique=True)
-    profile_picture = models.TextField(null=True, blank=True)
     last_seen = models.DateTimeField(null=True, blank=True)
     status = models.BooleanField(default=False, help_text="Approved status")
     
@@ -192,3 +191,25 @@ class NepaliMonth(models.Model):
     class Meta:
         db_table = 'nepali_months'
         ordering = ['month_number']
+
+
+from django.core.validators import FileExtensionValidator
+
+class Avatar(models.Model):
+    """Model to store user profile pictures"""
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='avatar')
+    image = models.ImageField(
+        upload_to='avatars/',
+        validators=[
+            FileExtensionValidator(allowed_extensions=['jpg', 'jpeg', 'png'])
+        ]
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Avatar for {self.user.email}"
+
+    class Meta:
+        verbose_name = 'Avatar'
+        verbose_name_plural = 'Avatars'
