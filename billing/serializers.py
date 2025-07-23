@@ -3,11 +3,15 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from .models import Branch, Avatar
 from django.contrib.auth import get_user_model
 
+
 User = get_user_model()
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
-    @classmethod
-    def get_token(cls, user):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.request = kwargs.get('context', {}).get('request')
+    
+    def get_token(self, user):
         token = super().get_token(user)
         
         # Add custom claims
@@ -15,6 +19,11 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         token['email'] = user.email
         token['role_name'] = user.role.name if user.role else ''
         token['name'] =  ''
+        
+        if user.avatar and user.avatar.image:
+            token['avatar'] = self.request.build_absolute_uri(user.avatar.image.url) if self.request else user.avatar.image.url
+        else:
+            token['avatar'] = ''
         
         return token
 
