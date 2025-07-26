@@ -1,6 +1,8 @@
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
 from django.core.exceptions import ValidationError
+from django.core.validators import FileExtensionValidator
+from .utils import get_citizenship_upload_path
 
 class UserManager(BaseUserManager):
     def create_user(self, username, email, password=None, **extra_fields):
@@ -32,6 +34,8 @@ class User(AbstractUser):
     email = models.EmailField(unique=True)
     last_seen = models.DateTimeField(null=True, blank=True)
     status = models.BooleanField(default=False, help_text="Approved status")
+    password_reset_token = models.CharField(max_length=32, null=True, blank=True)
+    password_reset_token_expires = models.DateTimeField(null=True, blank=True)
     
     # Relationships
     role = models.ForeignKey('Role', on_delete=models.SET_NULL, null=True, blank=True)
@@ -123,16 +127,28 @@ class Branch(models.Model):
         ordering = ['branch_code']
 
 
+
+
 class Employee(models.Model):
+    ROLES = (
+        ('branch_admin', 'Branch Admin'),
+        ('meter_reader', 'Meter Reader'),
+    )
+    
     contact_no = models.CharField(max_length=20, unique=True)
     email = models.EmailField(unique=True)
     employee_code = models.CharField(max_length=20, unique=True)
     name = models.CharField(max_length=200)
     address = models.TextField(null=False, blank=False)
     citizenship_no = models.CharField(max_length=50, unique=True)
-    citizenship_file_location = models.CharField(max_length=255, null=True, blank=True)
+    citizenship_file_location = models.FileField(
+        upload_to=get_citizenship_upload_path,
+        validators=[FileExtensionValidator(allowed_extensions=['pdf', 'png', 'jpg', 'jpeg','pdf'])],
+        null=True,
+        blank=True
+    )
     branch = models.ForeignKey(Branch, on_delete=models.PROTECT)
-    status = models.BooleanField(default=False,help_text="Approved status")  # False until approved
+    status = models.BooleanField(default=False, help_text="Approved status")
     date_joined = models.DateField(null=True, blank=True)
     user = models.OneToOneField(User, on_delete=models.SET_NULL, null=True, blank=True)
 
@@ -181,7 +197,6 @@ class NepaliMonth(models.Model):
         ordering = ['month_number']
 
 
-from django.core.validators import FileExtensionValidator
 
 class Avatar(models.Model):
     """Model to store user profile pictures"""
